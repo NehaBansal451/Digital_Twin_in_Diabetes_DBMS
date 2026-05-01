@@ -269,10 +269,10 @@ python ml_api.py
 ## 📸 Screenshots
 
 ### Dashboard
-![Dashboard](https://github.com/user-attachments/assets/8882a270-0043-44e8-9b48-f1a93193ec1d)
+![Dashboard](dashboard.png)
 
 ### ML Prediction
-![Prediction](https://github.com/user-attachments/assets/1485d647-2c8b-4da0-97e8-c6211ae70099)
+![Prediction](prediction.png)
 
 ```
 

@@ -263,9 +263,9 @@ python ml_api.py
 
 ## 📸 Screenshots
 
-(Add your screenshots here)
 
-```
+
+
 ## 📸 Screenshots
 
 ### Dashboard
@@ -274,7 +274,7 @@ python ml_api.py
 ### ML Prediction
 ![Prediction](prediction.png)
 
-```
+
 
 ---
 

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Digital Twin – Diabetes</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <button onclick="downloadReport()" class="export-btn">📄 Export Report</button>
+
+ 
+
+<!-- 🔥 SIDEBAR -->
+<div class="sidebar">
+  <h2>🏥 Dashboard</h2>
+
+  <div onclick="showSection('patients')">Patients</div>
+  <div onclick="showSection('analytics')">Analytics</div>
+  <div onclick="showSection('alerts')">
+    Alerts <span id="alertBadge" class="badge">0</span>
+  </div>
+</div> <!-- ✅ VERY IMPORTANT -->
+
+<!-- 🔥 MAIN CONTENT -->
+<div id="main-wrapper">
+        <h1>Digital Twin — Diabetes Management</h1>
+
+        <!-- 📊 STATS -->
+        <div class="stats">
+            <div class="stat-card patients">
+                👥 Patients
+                <h2 id="totalPatients">0</h2>
+            </div>
+
+            <div class="stat-card glucose">
+                🩸 Avg Glucose
+                <h2 id="avgGlucose">--</h2>
+            </div>
+
+            <div class="stat-card alerts">
+                ⚠️ Alerts
+                <h2 id="alertCount">0</h2>
+            </div>
+        </div>
+
+        <!-- ========================= PATIENTS SECTION ========================= -->
+        <div id="patients" class="section active">
+
+            <!-- 🔍 SEARCH -->
+            <div class="search-box">
+                🔍
+                <input id="search" placeholder="Search by name or ID..." onkeyup="searchPatient()" />
+            </div>
+
+            <!-- Add Patient -->
+            <div class="card">
+                <h3>➕ Add New Patient</h3>
+
+                <label>Name</label>
+                <input id="name" placeholder="Patient Name" />
+
+                <label>Age</label>
+                <input id="age" type="number" />
+
+                <label>Gender</label>
+                <select id="gender">
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+
+                <label>Diabetes Type</label>
+                <select id="dtype">
+                    <option>Type1</option>
+                    <option>Type2</option>
+                    <option>Gestational</option>
+                </select>
+
+                <button onclick="addPatient()">Add Patient</button>
+                <button onclick="loadPatients()" class="green">View All Patients</button>
+
+                <div id="patient-table"></div>
+            </div>
+
+            <!-- Log Glucose -->
+            <div class="card">
+                <h3>🩸 Log Glucose Reading</h3>
+
+                <input id="g-pid" placeholder="Patient ID" type="number" />
+                <input id="g-level" placeholder="Glucose Level" type="number" />
+
+                <button onclick="logGlucose()">Log Reading</button>
+                <button onclick="loadGlucose()" class="green">View Readings</button>
+
+                <div id="glucose-result"></div>
+            </div>
+        </div>
+
+        <!-- ========================= ANALYTICS SECTION ========================= -->
+        <div id="analytics" class="section">
+            <div class="card">
+                <h3>📊 Glucose Analytics</h3>
+                <canvas id="chart"></canvas>
+                <h3 id="trend">Trend: --</h3>
+            </div>
+        </div>
+
+        <!-- ========================= ALERTS SECTION ========================= -->
+        <div id="alerts" class="section">
+            <div class="card">
+                <h3>⚠️ Critical Alerts</h3>
+                <button onclick="loadAlerts()" class="red">Load Alerts</button>
+                <div id="alerts-result"></div>
+            </div>
+        </div>
+
+        <!-- ========================= AI SECTION ========================= -->
+        <div class="card">
+            <h3>🧠 AI Health Risk Prediction</h3>
+            <input id="health-id" placeholder="Patient ID">
+            <button onclick="getHealth()">Predict</button>
+            <div id="health-result"></div>
+        </div>
+    </div>
+    <!-- END MAIN -->
+
+    <!-- 🔥 POPUP -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span onclick="closePopup()" class="close">&times;</span>
+            <h3>Patient Details</h3>
+            <div id="popup-data"></div>
+        </div>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <!-- Notifications -->
+    <div id="notification-panel" class="notification-panel"></div>
+
+  
+<button onclick="getAIInsulin()">AI Insulin</button>
+<div id="ai-insulin"></div>
+    <!-- JS -->
+    <script src="js/main.js"></script>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</html>

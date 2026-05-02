@@ -46,6 +46,9 @@ app.use('/api/ai-insulin', require('./routes/ai-insulin'));
 // ================= STATIC FILES =================
 const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // ================= 404 =================
 app.use((req, res) => {
@@ -53,7 +56,7 @@ app.use((req, res) => {
 });
 
 // ================= SERVER =================
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

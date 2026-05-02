@@ -34,7 +34,7 @@ router.get('/:id', async (req, res) => {
 
     // 2) Latest insulin
     const [insulinRows] = await db.query(`
-      SELECT * FROM INSULIN 
+      SELECT * FROM INSULIN_DOSAGE
       WHERE patient_id = ? 
       ORDER BY recorded_at DESC 
       LIMIT 1

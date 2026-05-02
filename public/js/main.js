@@ -534,3 +534,29 @@ async function confirmInsulin(pid, units){
 
   alert("✅ Insulin saved by doctor");
 }
+async function predictRisk() {
+  const glucose = document.getElementById("predictionInput").value;
+
+  if (!glucose) {
+    alert("Enter glucose value");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/predict?glucose=${glucose}`);
+    const data = await res.json();
+
+    console.log("PREDICT:", data);
+
+    document.getElementById("result").innerHTML = `
+      <h3>Risk: ${data.risk}</h3>
+      <p><b>Diet:</b> ${data.recommendation.diet}</p>
+      <p><b>Exercise:</b> ${data.recommendation.exercise}</p>
+      <p><b>Precaution:</b> ${data.recommendation.precaution}</p>
+      <p><b>Medicine:</b> ${data.recommendation.medicine}</p>
+    `;
+  } catch (err) {
+    console.error(err);
+    alert("Prediction failed");
+  }
+}

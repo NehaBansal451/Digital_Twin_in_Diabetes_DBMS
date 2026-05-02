@@ -1,23 +1,12 @@
-const db = require('../db');
 const express = require('express');
 const router = express.Router();
+const db = require('../db');
 
-console.log("🔥 FULL PATIENT ROUTE LOADED");
-
-// TEST
-router.get('/test', (req, res) => {
-  console.log("✅ TEST ROUTE INSIDE FILE HIT");
-  res.send("FULL PATIENT ROUTE WORKING");
-});
-
-// MAIN ROUTE
 router.get('/:id', async (req, res) => {
   try {
     const id = req.params.id;
 
-    console.log("👉 Fetching patient ID:", id);
-
-    // Patient + doctor data
+    // 1) Patient + doctor
     const [rows] = await db.query(`
       SELECT 
         p.patient_id,
@@ -36,24 +25,36 @@ router.get('/:id', async (req, res) => {
       LIMIT 1
     `, [id]);
 
-    if (!rows || rows.length === 0) {
+    if (!rows.length) {
       return res.status(404).json({ error: "Patient not found" });
     }
 
-    // ✅ INSULIN DATA (INSIDE TRY)
-    const [insulin] = await db.query(
-      `SELECT * FROM INSULIN WHERE patient_id = ? ORDER BY recorded_at DESC LIMIT 1`,
+    // 2) Latest insulin (may be empty)
+    const [insulinRows] = await db.query(
+      `SELECT * FROM INSULIN 
+       WHERE patient_id = ? 
+       ORDER BY recorded_at DESC 
+       LIMIT 1`,
       [id]
     );
 
-    // ✅ FINAL RESPONSE
+    // 3) Glucose history (for report table)
+    const [glucoseRows] = await db.query(
+      `SELECT record_id, glucose_level, recorded_at
+       FROM GLUCOSE
+       WHERE patient_id = ?
+       ORDER BY recorded_at DESC`,
+      [id]
+    );
+
     res.json({
       ...rows[0],
-      insulin: insulin[0] || null
+      insulin: insulinRows[0] || null,   // ✅ always present (or null)
+      glucose: glucoseRows || []         // ✅ always array
     });
 
   } catch (err) {
-    console.error("❌ FULL PATIENT ERROR:", err);
+    console.error("FULL PATIENT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });

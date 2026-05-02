@@ -4,8 +4,8 @@ const db = mysql.createPool({
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
   password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQL_DATABASE,
-  port: process.env.MYSQLPORT
+  database: process.env.MYSQLDATABASE,   // ← changed this
+  port: parseInt(process.env.MYSQLPORT)
 });
 
 module.exports = db;

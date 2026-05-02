@@ -272,7 +272,8 @@ async function getHealth(){
   const id = document.getElementById('health-id').value;
 
   // Get all patients
-  const res = await fetch("http://localhost:3000/api/patients");
+  
+const res = await fetch("/api/patients");
   const patients = await res.json();
 
   const patient = patients.find(p => p.patient_id == id);
@@ -297,18 +298,12 @@ async function getHealth(){
   console.log("Sending:", patient.age, avgGlucose); // 🔥 DEBUG
 
   // ✅ STEP 2: call ML API
-  const response = await fetch("https://ml-diabetes-api.onrender.com/predict", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      age: patient.age,
-      glucose: avgGlucose
-    })
-  });
+// ✅ STEP 2: call ML API (CORRECT)
+const response = await fetch(
+  `https://ml-diabetes-api.onrender.com/predict?age=${patient.age}&glucose=${avgGlucose}`
+);
 
-  const result = await response.json();
+const data = await response.json();
 
   document.getElementById('health-result').innerHTML = `
   <div class="ai-card">

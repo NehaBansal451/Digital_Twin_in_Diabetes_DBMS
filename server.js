@@ -48,6 +48,7 @@ app.use('/api/full-patient', require('./routes/fullpatient'));
 app.use('/api/insulin', require('./routes/insulin'));
 app.use('/api/patients', require('./routes/patients'));
 app.use('/api/glucose', require('./routes/glucose'));
+app.use('/api/full-patient', require('./routes/fullPatient'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/ai-insulin', require('./routes/ai-insulin'));
 

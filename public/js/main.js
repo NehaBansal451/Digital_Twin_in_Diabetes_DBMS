@@ -391,8 +391,7 @@ async function downloadReport(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    const id = document.getElementById('health-id').value;
-
+    const id = document.getElementById('health-id').value;const id = document.getElementById('predictionInput').value;
     // ✅ validation
     if(!id){
       alert("Enter Patient ID");

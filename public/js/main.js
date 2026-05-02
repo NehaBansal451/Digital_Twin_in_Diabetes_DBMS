@@ -544,18 +544,22 @@ async function predictRisk() {
   }
 
   try {
-    const res = await fetch(`/api/predict?glucose=${glucose}`);
+    const res = await fetch(
+      `https://ml-diabetes-api.onrender.com/predict?age=30&glucose=${glucose}`
+    );
+
     const mldata = await res.json();
 
-    console.log("PREDICT:", data);
-document.getElementById("health-result")
-    .innerHTML = `
+    console.log("PREDICT:", mldata);
+
+    document.getElementById("health-result").innerHTML = `
       <h3>Risk: ${mldata.risk}</h3>
       <p><b>Diet:</b> ${mldata.recommendation.diet}</p>
       <p><b>Exercise:</b> ${mldata.recommendation.exercise}</p>
       <p><b>Precaution:</b> ${mldata.recommendation.precaution}</p>
       <p><b>Medicine:</b> ${mldata.recommendation.medicine}</p>
     `;
+
   } catch (err) {
     console.error(err);
     alert("Prediction failed");

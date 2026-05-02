@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
     const [insulinRows] = await db.query(`
       SELECT * FROM INSULIN_DOSAGE
       WHERE patient_id = ? 
-      ORDER BY recorded_at DESC 
+     ORDER BY administered_at DESC
       LIMIT 1
     `, [id]);
 
@@ -45,7 +45,7 @@ router.get('/:id', async (req, res) => {
       SELECT record_id, glucose_level, recorded_at
       FROM GLUCOSE
       WHERE patient_id = ?
-      ORDER BY recorded_at DESC
+    ORDER BY administered_at DESC
     `, [id]);
 
     // 4) Average glucose (for report + ML consistency)
@@ -61,7 +61,7 @@ router.get('/:id', async (req, res) => {
       insulin: insulinRows.length > 0
         ? {
             units: insulinRows[0].units || insulinRows[0].dose || 0,
-            recorded_at: insulinRows[0].recorded_at
+            recorded_at: insulinRows[0].administered_at
           }
         : null,
 

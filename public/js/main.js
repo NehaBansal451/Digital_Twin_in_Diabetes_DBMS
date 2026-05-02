@@ -337,14 +337,7 @@ try {
   return;
 }
 
-try {
-  if (!response.ok) throw new Error("ML API failed");
-  data = await response.json();
-} catch (err) {
-  console.error("Prediction Error:", err);
-  showToast("❌ Prediction failed");
-  return;
-}
+
 
 document.getElementById('health-result').innerHTML = `
   <div class="ai-card">
@@ -378,7 +371,7 @@ document.getElementById('health-result').innerHTML = `
     </p>
   </div>
 `;
-
+}
 
 
 /* =========================
@@ -569,5 +562,22 @@ async function predictRisk() {
   } catch (err) {
     console.error(err);
     alert("Prediction failed");
+  }
+}function showToast(msg){
+  const toast = document.createElement('div');
+  toast.innerText = msg;
+  toast.className = 'toast';
+  document.body.appendChild(toast);
+  setTimeout(()=> toast.remove(), 3000);
+}
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(sec=>{
+    sec.classList.remove('active');
+  });
+
+  const selected = document.getElementById(id);
+  if(selected){
+    selected.classList.add('active');
   }
 }

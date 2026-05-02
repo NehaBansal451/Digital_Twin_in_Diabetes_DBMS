@@ -10,7 +10,7 @@ router.get('/:patient_id', async (req, res) => {
     // Get last 5 glucose readings
     const [rows] = await db.query(`
       SELECT glucose_level 
-      FROM GLUCOSE_RECORD
+      FROM GLUCOSE
       WHERE patient_id = ?
       ORDER BY recorded_at DESC
       LIMIT 5

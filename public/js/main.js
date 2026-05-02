@@ -389,32 +389,73 @@ async function downloadReport(){
 
     // ✅ validation
     if(!id){
-      alert(" Enter Patient ID");
+      alert("Enter Patient ID");
       return;
     }
 
     const resultText = document.getElementById('health-result').innerText;
 
     if(!resultText){
-      alert(" Run prediction first!");
+      alert("Run prediction first!");
       return;
     }
 
     // ✅ fetch full patient data
     const res = await fetch(`/api/full-patient/${id}`);
+
     if(!res.ok){
-  alert(" Backend API not working");
-  return;
-}
-const info = await res.json();
-    if(!info || Object.keys(info).length === 0){
-      alert(" Patient not found");
+      alert("Backend API not working");
       return;
     }
 
-    // ✅ fetch insulin data
-    const insulinRes = await fetch(`/api/insulin/${id}`);
-    const insulinData = insulinRes.ok ? await insulinRes.json() : [];
+    const info = await res.json();
+
+    if(!info || Object.keys(info).length === 0){
+      alert("Patient not found");
+      return;
+    }
+
+    const insulinData = info.insulin;
+
+    // =========================
+    // ✅ PDF CONTENT
+    // =========================
+
+    doc.setFontSize(18);
+    doc.text("AI Diabetes Report", 20, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Patient ID: ${info.patient_id}`, 20, 40);
+    doc.text(`Name: ${info.name}`, 20, 50);
+    doc.text(`Age: ${info.age}`, 20, 60);
+    doc.text(`Gender: ${info.gender}`, 20, 70);
+
+    doc.text(`Risk: ${resultText}`, 20, 90);
+
+    doc.text(
+      `Insulin: ${insulinData ? insulinData.units + " units" : "No data"}`,
+      20,
+      110
+    );
+
+    doc.text(
+      `Avg Glucose: ${info.avg_glucose || "N/A"}`,
+      20,
+      120
+    );
+
+    // =========================
+    // ✅ DOWNLOAD
+    // =========================
+
+    doc.save(`patient_${id}_report.pdf`);
+
+  } catch (err) {
+    console.error(err);
+    alert("Error generating report (check backend)");
+  }
+}
+
 
     // ================= PDF DESIGN =================
 

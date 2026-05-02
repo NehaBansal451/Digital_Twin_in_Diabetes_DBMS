@@ -59,15 +59,21 @@ def predict():
         glucose = float(request.args.get('glucose'))
 
         input_df = pd.DataFrame([[age, glucose]], columns=['age', 'glucose'])
-
         pred = model.predict(input_df)[0]
 
+        # ✅ ML prediction
         if pred == 0:
             risk = "Low"
         elif pred == 1:
             risk = "Medium"
         else:
             risk = "High"
+
+        # 🔥 RULE OVERRIDE (FINAL FIX)
+        if glucose > 200:
+            risk = "High"
+        elif glucose > 140:
+            risk = "Medium"
 
         recommendation = get_recommendation(risk)
 

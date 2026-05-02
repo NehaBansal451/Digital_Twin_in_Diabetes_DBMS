@@ -313,27 +313,27 @@ const res = await fetch("/api/patients");
 let data;
 
 try {
-  const response = await fetch(
-  `https://ml-diabetes-api.onrender.com/predict?age=${patient.age}&glucose=${avgGlucose}`
-);
+  const url = `https://ml-diabetes-api.onrender.com/predict?age=${Number(patient.age)}&glucose=${Number(avgGlucose)}`;
 
-if (!response.ok) {
-  const err = await response.json();
-  throw new Error(err.error || "ML API failed");
-}
+  console.log("Calling:", url);
 
-data = await response.json();
+  const response = await fetch(url);
 
-  if (!response.ok) throw new Error("ML API failed");
+  const text = await response.text();   // read raw
+  console.log("RAW:", text);
 
-  data = await response.json();
+  data = JSON.parse(text);  // convert manually
+
+  // ❌ If ML returns error
+  if (data.error) {
+    throw new Error(data.error);
+  }
 
 } catch (err) {
   console.error("Prediction Error:", err);
-  showToast("❌ Prediction failed");
+  alert("Prediction failed: " + err.message);
   return;
 }
-
 
 
 document.getElementById('health-result').innerHTML = `

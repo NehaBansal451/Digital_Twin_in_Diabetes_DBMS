@@ -1,85 +1,53 @@
 const express = require('express');
-const router = express.Router();   // ✅ THIS LINE WAS MISSING
+const router = express.Router();
 const db = require('../db');
 
-// HEALTH AI ROUTE
-router.get('/health/:patient_id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
-    const { patient_id } = req.params;
+    const id = req.params.id;
 
-    const [[patient]] = await db.query(
-      'SELECT age FROM PATIENT WHERE patient_id = ?',
-      [patient_id]
-    );
+    const [rows] = await db.query(`
+      SELECT glucose_level, recorded_at
+      FROM GLUCOSE
+      WHERE patient_id = ?
+      ORDER BY recorded_at DESC
+    `, [id]);
 
-    if (!patient) {
-      return res.json({ message: "Patient not found" });
-    }
-
-    const age = patient.age;
-
-    const [rows] = await db.query(
-      'SELECT glucose_level FROM GLUCOSE_RECORD WHERE patient_id = ? ORDER BY recorded_at ASC',
-      [patient_id]
-    );
-
-    if (rows.length === 0) {
+    if (!rows.length) {
       return res.json({ message: "No glucose data" });
     }
 
     const values = rows.map(r => r.glucose_level);
 
-    const avg = values.reduce((a,b)=>a+b,0)/values.length;
-
-    const first = values[0];
-    const last = values[values.length-1];
+    const avg = Math.round(
+      values.reduce((a, b) => a + b, 0) / values.length
+    );
 
     let trend = "Stable";
-    if(last > first) trend = "Increasing 📈";
-    else if(last < first) trend = "Decreasing 📉";
+    if (values.length > 1) {
+      if (values[0] > values[values.length - 1]) trend = "Increasing";
+      else if (values[0] < values[values.length - 1]) trend = "Decreasing";
+    }
 
     let risk = "Low";
-    let conditions = [];
-    let recommendation = "";
+    if (avg > 200) risk = "High";
+    else if (avg > 140) risk = "Medium";
 
-    if(avg > 250){
-      risk = "High";
-      conditions.push("Severe Diabetes Risk");
-      recommendation = "Immediate medical attention required";
-    }
-    else if(avg > 180){
-      risk = "High";
-      conditions.push("Type 2 Diabetes Risk");
-
-      if(age > 40){
-        conditions.push("Heart Disease Risk");
-      }
-
-      recommendation = "Control sugar intake and monitor daily";
-    }
-    else if(avg < 70){
-      risk = "Low";
-      conditions.push("Hypoglycemia Risk");
-      recommendation = "Take glucose immediately";
-    }
-    else{
-      risk = "Normal";
-      conditions.push("No major risk");
-      recommendation = "Maintain healthy lifestyle";
-    }
+    let units = 0;
+    if (risk === "High") units = 12;
+    else if (risk === "Medium") units = 6;
 
     res.json({
-      age,
-      average_glucose: avg.toFixed(2),
+      average: avg,
       trend,
-      risk_level: risk,
-      possible_conditions: conditions,
-      recommendation
+      risk,
+      recommended_insulin: units
     });
 
   } catch (err) {
+    console.error("AI INSULIN ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;   // ✅ ALSO IMPORTANT
+module.exports = router;

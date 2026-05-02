@@ -52,14 +52,11 @@ def get_recommendation(risk):
 # =========================
 # MAIN PREDICTION API
 # =========================
-
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['GET'])
 def predict():
     try:
-        input_data = request.json
-
-        age = input_data['age']
-        glucose = input_data['glucose']
+        age = float(request.args.get('age', 30))
+        glucose = float(request.args.get('glucose'))
 
         input_df = pd.DataFrame([[age, glucose]], columns=['age', 'glucose'])
 
@@ -82,38 +79,11 @@ def predict():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-# =========================
-# FUTURE GLUCOSE PREDICTION
-# =========================
-
-@app.route('/predict-future', methods=['POST'])
-def predict_future():
-    try:
-        data = request.json
-        values = data['glucose_values']
-
-        if not values:
-            return jsonify({"error": "No data provided"}), 400
-
-        if len(values) < 2:
-            return jsonify({"prediction": values[-1]})
-
-        # Better trend calculation
-        diffs = [values[i+1] - values[i] for i in range(len(values)-1)]
-        avg_diff = sum(diffs) / len(diffs)
-        future = values[-1] + avg_diff
-
-        return jsonify({
-            "prediction": round(future, 2)
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
 # =========================
 # RUN SERVER
 # =========================
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+  import os
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)

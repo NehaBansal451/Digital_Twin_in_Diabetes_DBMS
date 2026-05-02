@@ -1,3 +1,4 @@
+const axios = require('axios');
 console.log("🚀 SERVER FILE RUNNING");
 
 const db = require('./db');
@@ -49,6 +50,22 @@ app.use('/api/patients', require('./routes/patients'));
 app.use('/api/glucose', require('./routes/glucose'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/ai-insulin', require('./routes/ai-insulin'));
+
+app.get('/api/predict', async (req, res) => {
+  try {
+    const { glucose } = req.query;
+
+    const response = await axios.get(
+      `http://127.0.0.1:5000/predict?glucose=${glucose}`
+    );
+
+    res.json(response.data);
+
+  } catch (err) {
+    console.error("ML ERROR:", err.message);
+    res.status(500).json({ error: "ML server error" });
+  }
+});
 // ================= STATIC FILES =================
 const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath));

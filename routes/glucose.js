@@ -33,12 +33,12 @@ router.post('/', async (req, res) => {
 // Get all critical alerts from ALERT_LOG
 router.get('/alerts/all', async (req, res) => {
   try {
-    const [rows] = await db.query(
-      `SELECT a.alert_id, p.name AS patient_name, a.message, a.created_at
-       FROM ALERT_LOG a
-       JOIN PATIENT p ON a.patient_id = p.patient_id
-       ORDER BY a.created_at DESC`
-    );
+ const [rows] = await db.query(`
+  SELECT a.alert_id, p.name AS patient_name, a.message, a.created_at
+  FROM ALERT_LOG a
+  JOIN PATIENT p ON a.patient_id = p.patient_id
+  ORDER BY a.created_at DESC
+`);
 
     res.json(rows);
 

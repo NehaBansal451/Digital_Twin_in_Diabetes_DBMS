@@ -55,9 +55,9 @@ app.get('/api/predict', async (req, res) => {
   try {
     const { glucose } = req.query;
 
-    const response = await axios.get(
-      `http://127.0.0.1:5000/predict?glucose=${glucose}`
-    );
+   const response = await axios.get(
+  `https://ml-diabetes-api.onrender.com/predict?glucose=${glucose}&age=30`
+);
 
     res.json(response.data);
 

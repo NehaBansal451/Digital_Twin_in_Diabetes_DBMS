@@ -149,21 +149,32 @@ async function loadGlucose(){
 
   document.getElementById('glucose-result').innerText = "Loading...";
 
-  const res = await fetch(`/api/glucose/${pid}`);
-  const data = await res.json();
+const res = await fetch(`/api/glucose/${pid}`);
 
+if(!res.ok){
+  alert("❌ Failed to load glucose data");
+  return;
+}
+
+const data = await res.json();
+if(!Array.isArray(data) || data.length === 0){
+  document.getElementById('glucose-result').innerHTML = "No glucose data found";
+  return;
+}
   let html = '<table><tr><th>Level</th><th>Time</th></tr>';
 
-  data.forEach(g=>{
-    html += `<tr>
-      <td class="${g.glucose_level>300?'red':''}">${g.glucose_level}</td>
-      <td>${g.recorded_at}</td>
-    </tr>`;
+ data.forEach(g=>{
+  html += `<tr>
+    <td class="${g.glucose_level>300?'red':''}">${g.glucose_level}</td>
+    <td>${g.recorded_at}</td>
+  </tr>`;
 
-if(g.glucose_level > 250){
-  notify("⚠️ Critical glucose detected!");
-}
-  });
+  if(g.glucose_level > 250){
+    showToast("⚠️ Critical glucose detected!");
+  }
+});
+
+
 
   html += '</table>';
   document.getElementById('glucose-result').innerHTML = html;
@@ -299,11 +310,41 @@ const res = await fetch("/api/patients");
 
   // ✅ STEP 2: call ML API
 // ✅ STEP 2: call ML API (CORRECT)
-const response = await fetch(
-  `https://ml-diabetes-api.onrender.com/predict?age=${patient.age}&glucose=${avgGlucose}`
-);
+let data;
 
-const data = await response.json();
+try {
+  const response = await fetch(
+    "https://ml-diabetes-api.onrender.com/predict",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        age: patient.age,
+        glucose: avgGlucose
+      })
+    }
+  );
+
+  if (!response.ok) throw new Error("ML API failed");
+
+  data = await response.json();
+
+} catch (err) {
+  console.error("Prediction Error:", err);
+  showToast("❌ Prediction failed");
+  return;
+}
+
+try {
+  if (!response.ok) throw new Error("ML API failed");
+  data = await response.json();
+} catch (err) {
+  console.error("Prediction Error:", err);
+  showToast("❌ Prediction failed");
+  return;
+}
 
 document.getElementById('health-result').innerHTML = `
   <div class="ai-card">
@@ -339,31 +380,7 @@ document.getElementById('health-result').innerHTML = `
 `;
 
 
-/* =========================
-   TOAST
-========================= */
-function showToast(msg){
-  const toast = document.createElement('div');
-  toast.innerText = msg;
-  toast.className = 'toast';
 
-  document.body.appendChild(toast);
-  setTimeout(()=> toast.remove(), 3000);
-}
-
-/* =========================
-   SECTION SWITCH
-========================= */
-function showSection(id){
-  document.querySelectorAll('.section').forEach(sec=>{
-    sec.classList.remove('active');
-  });
-
-  const selected = document.getElementById(id);
-  if(selected){
-    selected.classList.add('active');
-  }
-}
 /* =========================
    INIT
 ========================= */

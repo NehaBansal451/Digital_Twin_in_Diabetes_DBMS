@@ -548,8 +548,8 @@ async function predictRisk() {
     const data = await res.json();
 
     console.log("PREDICT:", data);
-
-    document.getElementById("result").innerHTML = `
+document.getElementById("health-result")
+    .innerHTML = `
       <h3>Risk: ${data.risk}</h3>
       <p><b>Diet:</b> ${data.recommendation.diet}</p>
       <p><b>Exercise:</b> ${data.recommendation.exercise}</p>

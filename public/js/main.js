@@ -305,39 +305,38 @@ const response = await fetch(
 
 const data = await response.json();
 
-  document.getElementById('health-result').innerHTML = `
+document.getElementById('health-result').innerHTML = `
   <div class="ai-card">
     <h3> ML Prediction</h3>
 
     <p> Age: ${patient.age}</p>
     <p> Glucose: ${avgGlucose}</p>
 
-    <div class="insight ${result.risk.toLowerCase()}">
-      ⚠️ Risk: ${result.risk}
+    <div class="insight ${data.risk.toLowerCase()}">
+      ⚠️ Risk: ${data.risk}
     </div>
 
-    <p> Score: ${result.score}</p>
+    <p> Score: ${data.score}</p>
 
     <hr>
 
     <h4> Diet</h4>
-    <p>${result.recommendation.diet}</p>
+    <p>${data.recommendation.diet}</p>
 
     <h4> Exercise</h4>
-    <p>${result.recommendation.exercise}</p>
+    <p>${data.recommendation.exercise}</p>
 
     <h4> Precaution</h4>
-    <p>${result.recommendation.precaution}</p>
+    <p>${data.recommendation.precaution}</p>
 
     <h4> Medicine</h4>
-    <p>${result.recommendation.medicine}</p>
+    <p>${data.recommendation.medicine}</p>
 
     <p class="note">
-      *This is a simulated recommendation. Consult a doctor.
+      *This is a simulated recommendation.
     </p>
   </div>
 `;
-}
 
 
 /* =========================

@@ -457,67 +457,7 @@ async function downloadReport(){
 }
 
 
-    // ================= PDF DESIGN =================
-
-    // 🔷 HEADER
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.text(" DIGITAL HEALTH REPORT", 20, 20);
-
-    doc.setLineWidth(0.5);
-    doc.line(20, 25, 190, 25);
-
-    // 🔷 BASIC INFO
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.text(` Patient: ${info.name || "-"}`, 20, 40);
-    doc.text(` Age: ${info.age || "-"}`, 20, 50);
-    doc.text(` Doctor: ${info.doctor_name || "Not Assigned"}`, 20, 60);
-    doc.text(` Specialization: ${info.specialization || "-"}`, 20, 70);
-
-    doc.text(`Appointment: ${info.appointment_date || "-"}`, 20, 80);
-    doc.text(` Status: ${info.status || "-"}`, 20, 90);
-   
-    // 🔷 INSULIN SECTION
-    doc.setFont("helvetica", "bold");
-    doc.text(" Insulin Records:", 20, 110);
-
-    doc.setFont("helvetica", "normal");
-
-    let y = 120;
-
-    if(!insulinData || insulinData.length === 0){
-      doc.text("No insulin records available", 20, y);
-      y += 10;
-    } else {
-      insulinData.slice(0, 8).forEach(i => { // limit for spacing
-        doc.text(`• ${i.units} units at ${i.administered_at}`, 20, y);
-        y += 8;
-      });
-    }
-
-    // 🔷 AI SECTION
-    doc.setFont("helvetica", "bold");
-    doc.text(" AI Prediction:", 20, y + 5);
-
-    doc.setFont("helvetica", "normal");
-
-    const lines = doc.splitTextToSize(resultText, 170);
-    doc.text(lines, 20, y + 15);
-
-    // 🔷 FOOTER
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 280);
-
-    // 🔷 SAVE
-    doc.save(`Health_Report_${info.patient_name || id}.pdf`);
-
-  } catch(err){
-    console.error("Report Error:", err);
-    alert(" Error generating report (check backend)");
-  }
-}
-window.onload = () => {
+   dow.onload = () => {
   showSection('patients');
 };
 

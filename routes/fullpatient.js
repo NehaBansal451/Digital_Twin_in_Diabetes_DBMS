@@ -2,12 +2,11 @@ const db = require('../db');
 const express = require('express');
 const router = express.Router();
 
-
 console.log("🔥 FULL PATIENT ROUTE LOADED");
 
 // TEST
 router.get('/test', (req, res) => {
-    console.log("✅ TEST ROUTE INSIDE FILE HIT");
+  console.log("✅ TEST ROUTE INSIDE FILE HIT");
   res.send("FULL PATIENT ROUTE WORKING");
 });
 
@@ -18,6 +17,7 @@ router.get('/:id', async (req, res) => {
 
     console.log("👉 Fetching patient ID:", id);
 
+    // Patient + doctor data
     const [rows] = await db.query(`
       SELECT 
         p.patient_id,
@@ -33,16 +33,24 @@ router.get('/:id', async (req, res) => {
       LEFT JOIN DOCTOR d ON a.doctor_id = d.doctor_id
       WHERE p.patient_id = ?
       ORDER BY a.appointment_date DESC
-  LIMIT 1
+      LIMIT 1
     `, [id]);
-
-    console.log("👉 RESULT:", rows);
 
     if (!rows || rows.length === 0) {
       return res.status(404).json({ error: "Patient not found" });
     }
 
-    res.json(rows[0]);
+    // ✅ INSULIN DATA (INSIDE TRY)
+    const [insulin] = await db.query(
+      `SELECT * FROM INSULIN WHERE patient_id = ? ORDER BY recorded_at DESC LIMIT 1`,
+      [id]
+    );
+
+    // ✅ FINAL RESPONSE
+    res.json({
+      ...rows[0],
+      insulin: insulin[0] || null
+    });
 
   } catch (err) {
     console.error("❌ FULL PATIENT ERROR:", err);

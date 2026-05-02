@@ -33,13 +33,12 @@ router.get('/:id', async (req, res) => {
     }
 
     // 2) Latest insulin
-    const [insulinRows] = await db.query(`
-      SELECT * FROM INSULIN_DOSAGE
-      WHERE patient_id = ? 
-   ORDER BY recorded_at DESC  
-      LIMIT 1
-    `, [id]);
-
+   const [insulinRows] = await db.query(`
+  SELECT * FROM INSULIN_DOSAGE
+  WHERE patient_id = ? 
+  ORDER BY administered_at DESC 
+  LIMIT 1
+`, [id]);
     // 3) Glucose history
     const [glucoseRows] = await db.query(`
       SELECT record_id, glucose_level, recorded_at
@@ -59,11 +58,11 @@ router.get('/:id', async (req, res) => {
       ...rows[0],
 
       insulin: insulinRows.length > 0
-        ? {
-            units: insulinRows[0].units || insulinRows[0].dose || 0,
-            recorded_at: insulinRows[0].recorded_at
-          }
-        : null,
+  ? {
+      units: insulinRows[0].units || 0,
+      recorded_at: insulinRows[0].administered_at
+    }
+  : null,
 
       glucose: glucoseRows,
       avg_glucose: Number(avgGlucose.toFixed(2))

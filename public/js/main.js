@@ -280,8 +280,14 @@ async function loadAlerts(){
    AI HEALTH
 ========================= */
 async function getHealth(){
-  const id = document.getElementById('health-id').value;
+ const input = document.getElementById('health-id');
 
+if (!input) {
+  alert("Input field not found");
+  return;
+}
+
+const id = input.value;
   // Get all patients
   
 const res = await fetch("/api/patients");
@@ -401,7 +407,9 @@ async function downloadReport(){
     }
 
     // ✅ fetch full patient data
-    const res = await fetch(`/api/full-patient/${id}`);
+const res = await fetch(
+  `https://digitaltwinindiabetesdbms-production.up.railway.app/api/full-patient/${id}`
+);
 
     if(!res.ok){
       alert("Backend API not working");
@@ -457,10 +465,9 @@ async function downloadReport(){
 }
 
 
-   dow.onload = () => {
+   window.onload = () => {
   showSection('patients');
 };
-
 function predictNext(values){
   const n = values.length;
   if(n < 2) return values[n-1];

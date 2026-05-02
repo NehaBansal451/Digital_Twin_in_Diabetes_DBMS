@@ -3,11 +3,12 @@ from flask_cors import CORS
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
+# ✅ Correct
 app = Flask(__name__)
 CORS(app)
 
 # =========================
-# TRAIN MODEL (Improved Data)
+# TRAIN MODEL
 # =========================
 
 df = pd.DataFrame({
@@ -50,8 +51,9 @@ def get_recommendation(risk):
         }
 
 # =========================
-# MAIN PREDICTION API
+# MAIN API
 # =========================
+
 @app.route('/predict', methods=['GET'])
 def predict():
     try:
@@ -61,7 +63,7 @@ def predict():
         input_df = pd.DataFrame([[age, glucose]], columns=['age', 'glucose'])
         pred = model.predict(input_df)[0]
 
-        # ✅ ML prediction
+        # ML prediction
         if pred == 0:
             risk = "Low"
         elif pred == 1:
@@ -69,11 +71,13 @@ def predict():
         else:
             risk = "High"
 
-        # 🔥 RULE OVERRIDE (FINAL FIX)
+        # 🔥 RULE OVERRIDE (FINAL)
         if glucose > 200:
             risk = "High"
         elif glucose > 140:
             risk = "Medium"
+        else:
+            risk = "Low"
 
         recommendation = get_recommendation(risk)
 
@@ -85,6 +89,7 @@ def predict():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 # =========================
 # RUN SERVER
 # =========================

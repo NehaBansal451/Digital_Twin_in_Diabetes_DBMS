@@ -545,16 +545,16 @@ async function predictRisk() {
 
   try {
     const res = await fetch(`/api/predict?glucose=${glucose}`);
-    const data = await res.json();
+    const mldata = await res.json();
 
     console.log("PREDICT:", data);
 document.getElementById("health-result")
     .innerHTML = `
-      <h3>Risk: ${data.risk}</h3>
-      <p><b>Diet:</b> ${data.recommendation.diet}</p>
-      <p><b>Exercise:</b> ${data.recommendation.exercise}</p>
-      <p><b>Precaution:</b> ${data.recommendation.precaution}</p>
-      <p><b>Medicine:</b> ${data.recommendation.medicine}</p>
+      <h3>Risk: ${mldata.risk}</h3>
+      <p><b>Diet:</b> ${mldata.recommendation.diet}</p>
+      <p><b>Exercise:</b> ${mldata.recommendation.exercise}</p>
+      <p><b>Precaution:</b> ${mldata.recommendation.precaution}</p>
+      <p><b>Medicine:</b> ${mldata.recommendation.medicine}</p>
     `;
   } catch (err) {
     console.error(err);

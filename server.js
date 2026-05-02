@@ -1,6 +1,12 @@
 console.log("🚀 SERVER FILE RUNNING");
 
 const db = require('./db');
+console.log("DB CONFIG:", {
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  database: process.env.MYSQL_DATABASE,
+  port: process.env.MYSQLPORT
+});
 const express = require('express');
 const cors = require('cors');
 const path = require('path');

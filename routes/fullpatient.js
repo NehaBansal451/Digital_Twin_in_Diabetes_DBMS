@@ -6,7 +6,7 @@ router.get('/:id', async (req, res) => {
   try {
     const id = req.params.id;
 
-    // 1) Patient + doctor
+    // 1) Patient + latest doctor (safe join)
     const [rows] = await db.query(`
       SELECT 
         p.patient_id,
@@ -18,39 +18,55 @@ router.get('/:id', async (req, res) => {
         d.specialization,
         a.appointment_date
       FROM PATIENT p
-      LEFT JOIN APPOINTMENT a ON p.patient_id = a.patient_id
+      LEFT JOIN (
+        SELECT * FROM APPOINTMENT 
+        WHERE patient_id = ? 
+        ORDER BY appointment_date DESC 
+        LIMIT 1
+      ) a ON p.patient_id = a.patient_id
       LEFT JOIN DOCTOR d ON a.doctor_id = d.doctor_id
       WHERE p.patient_id = ?
-      ORDER BY a.appointment_date DESC
-      LIMIT 1
-    `, [id]);
+    `, [id, id]);
 
     if (!rows.length) {
       return res.status(404).json({ error: "Patient not found" });
     }
 
-    // 2) Latest insulin (may be empty)
-    const [insulinRows] = await db.query(
-      `SELECT * FROM INSULIN 
-       WHERE patient_id = ? 
-       ORDER BY recorded_at DESC 
-       LIMIT 1`,
-      [id]
-    );
+    // 2) Latest insulin
+    const [insulinRows] = await db.query(`
+      SELECT * FROM INSULIN 
+      WHERE patient_id = ? 
+      ORDER BY recorded_at DESC 
+      LIMIT 1
+    `, [id]);
 
-    // 3) Glucose history (for report table)
-    const [glucoseRows] = await db.query(
-      `SELECT record_id, glucose_level, recorded_at
-       FROM GLUCOSE
-       WHERE patient_id = ?
-       ORDER BY recorded_at DESC`,
-      [id]
-    );
+    // 3) Glucose history
+    const [glucoseRows] = await db.query(`
+      SELECT record_id, glucose_level, recorded_at
+      FROM GLUCOSE
+      WHERE patient_id = ?
+      ORDER BY recorded_at DESC
+    `, [id]);
 
+    // 4) Average glucose (for report + ML consistency)
+    const avgGlucose =
+      glucoseRows.length > 0
+        ? glucoseRows.reduce((sum, g) => sum + g.glucose_level, 0) / glucoseRows.length
+        : 0;
+
+    // 5) Final response (clean structure)
     res.json({
       ...rows[0],
-      insulin: insulinRows[0] || null,   // ✅ always present (or null)
-      glucose: glucoseRows || []         // ✅ always array
+
+      insulin: insulinRows.length > 0
+        ? {
+            units: insulinRows[0].units || insulinRows[0].dose || 0,
+            recorded_at: insulinRows[0].recorded_at
+          }
+        : null,
+
+      glucose: glucoseRows,
+      avg_glucose: Number(avgGlucose.toFixed(2))
     });
 
   } catch (err) {

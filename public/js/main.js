@@ -314,18 +314,15 @@ let data;
 
 try {
   const response = await fetch(
-    "https://ml-diabetes-api.onrender.com/predict",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        age: patient.age,
-        glucose: avgGlucose
-      })
-    }
-  );
+  `https://ml-diabetes-api.onrender.com/predict?age=${patient.age}&glucose=${avgGlucose}`
+);
+
+if (!response.ok) {
+  const err = await response.json();
+  throw new Error(err.error || "ML API failed");
+}
+
+data = await response.json();
 
   if (!response.ok) throw new Error("ML API failed");
 

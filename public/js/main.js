@@ -390,19 +390,19 @@ async function downloadReport(){
   try {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+const input = document.getElementById('health-id'); // use existing input
 
-    const id = document.getElementById('health-id').value;
-   if (!input) {
+if (!input) {
   alert("Input not found");
   return;
 }
 
 const id = input.value;
- if(!id){
-      alert("Enter Patient ID");
-      return;
-    }
 
+if (!id) {
+  alert("Enter Patient ID");
+  return;
+}
     const resultText = document.getElementById('health-result').innerText;
 
     if(!resultText){

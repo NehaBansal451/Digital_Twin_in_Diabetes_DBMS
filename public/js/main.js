@@ -515,7 +515,7 @@ if (finalRisk === "High") {
   doc.setTextColor(0, 128, 0);
 }
 
-
+doc.text(`Risk Level: ${finalRisk}`, 20, y);
 // reset color
 doc.setTextColor(0, 0, 0);
 
@@ -561,7 +561,7 @@ doc.text(`Latest Glucose: ${latest}`, 20, y);// =========================
 
 if (info.glucose && info.glucose.length > 0) {
 
-  if (y > 180) {
+  if (y > 160) {
     doc.addPage();
     y = 20;
   }
@@ -576,7 +576,7 @@ if (info.glucose && info.glucose.length > 0) {
 
   doc.addImage(chartImg, "PNG", 20, y, 160, 80);
 
-y += 10;  
+y += 90;  
 }
 
 // =========================

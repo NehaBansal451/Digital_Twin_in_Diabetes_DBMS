@@ -469,7 +469,7 @@ const res = await fetch(
 // =========================
 doc.setFontSize(20);
 doc.setTextColor(0, 102, 204);
-doc.text("AI DIABETES HEALTH REPORT", 20, 20);
+doc.text("PATIENT DIABETES HEALTH REPORT", 20, 20);
 
 // line
 doc.setDrawColor(0, 102, 204);

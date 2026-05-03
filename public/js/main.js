@@ -1,4 +1,34 @@
-/* =========================
+function generateChart(glucoseData) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 400;
+  canvas.height = 200;
+
+  const ctx = canvas.getContext("2d");
+
+  const values = glucoseData.map(g => g.glucose_level);
+
+  // draw axes
+  ctx.beginPath();
+  ctx.moveTo(30, 10);
+  ctx.lineTo(30, 180);
+  ctx.lineTo(380, 180);
+  ctx.stroke();
+
+  // plot graph
+  ctx.beginPath();
+  values.forEach((val, i) => {
+    const x = 30 + i * (300 / values.length);
+    const y = 180 - val * 0.4; // scale
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+
+  ctx.strokeStyle = "blue";
+  ctx.stroke();
+
+  return canvas.toDataURL("image/png");
+}/* =========================
    GLOBAL VARIABLES
 ========================= */
 let chart;
@@ -432,51 +462,123 @@ const res = await fetch(
     // =========================
     // ✅ PDF CONTENT
     // =========================
+// =========================
+// 🏥 HEADER
+// =========================
+doc.setFontSize(20);
+doc.setTextColor(0, 102, 204);
+doc.text("AI DIABETES HEALTH REPORT", 20, 20);
 
-    doc.setFontSize(18);
-    doc.text("AI Diabetes Report", 20, 20);
+// line
+doc.setDrawColor(0, 102, 204);
+doc.line(20, 25, 190, 25);
 
-    doc.setFontSize(12);
-    doc.text(`Patient ID: ${info.patient_id}`, 20, 40);
-doc.text(`Name: ${info.name}`, 20, 50);
-doc.text(`Age: ${info.age}`, 20, 60);
-doc.text(`Gender: ${info.gender}`, 20, 70);
+// reset color
+doc.setTextColor(0, 0, 0);
 
-doc.text(`Doctor: ${info.doctor_name || "N/A"}`, 20, 80);
-doc.text(`Specialization: ${info.specialization || "N/A"}`, 20, 90);
+// =========================
+// 📋 PATIENT DETAILS
+// =========================
+doc.setFontSize(12);
 
-doc.text(`Risk: ${resultText}`, 20, 105);
+let y = 40;
 
-   // 🧪 INSULIN SECTION
+doc.text(`Patient ID: ${info.patient_id}`, 20, y);
+doc.text(`Name: ${info.name}`, 20, y + 10);
+doc.text(`Age: ${info.age}`, 20, y + 20);
+doc.text(`Gender: ${info.gender}`, 20, y + 30);
+
+doc.text(`Doctor: ${info.doctor_name || "N/A"}`, 110, y);
+doc.text(`Specialization: ${info.specialization || "N/A"}`, 110, y + 10);
+
+// =========================
+// 🔥 RISK (COLORED)
+// =========================
+y += 50;
+
+doc.setFontSize(14);
+
+if (resultText.includes("High")) {
+  doc.setTextColor(255, 0, 0); // red
+} else if (resultText.includes("Medium")) {
+  doc.setTextColor(255, 140, 0); // orange
+} else {
+  doc.setTextColor(0, 128, 0); // green
+}
+
+doc.text(`Risk Level: ${resultText}`, 20, y);
+
+// reset color
+doc.setTextColor(0, 0, 0);
+
+// =========================
 // 🧪 INSULIN SECTION
-let y = 125;
+// =========================
+y += 20;
 
+doc.setFontSize(13);
 doc.text("Insulin Records:", 20, y);
+
+doc.setFontSize(11);
 
 if (Array.isArray(insulinData) && insulinData.length > 0) {
   insulinData.slice(0, 5).forEach(i => {
     y += 10;
     doc.text(
-      `• ${i.units} units at ${new Date(i.administered_at).toLocaleString()}`,
-      20,
+      `• ${i.units} units (${new Date(i.administered_at).toLocaleDateString()})`,
+      25,
       y
     );
   });
 } else if (insulinData) {
   y += 10;
-  doc.text(`• ${insulinData.units} units`, 20, y);
+  doc.text(`• ${insulinData.units} units`, 25, y);
 } else {
   y += 10;
-  doc.text("No insulin data", 20, y);
+  doc.text("No insulin data available", 25, y);
 }
 
-y += 15;
-doc.text(`Avg Glucose: ${info.avg_glucose || "N/A"}`, 20, y);
-    // =========================
-    // ✅ DOWNLOAD
-    // =========================
+// =========================
+// 📊 AVG GLUCOSE
+// =========================
+y += 20;
 
-    doc.save(`patient_${id}_report.pdf`);
+doc.setFontSize(12);
+doc.text(`Average Glucose: ${info.avg_glucose || "N/A"}`, 20, y);
+// =========================
+// 📈 GLUCOSE GRAPH
+// =========================
+
+if (info.glucose && info.glucose.length > 0) {
+  const chartImg = generateChart(info.glucose);
+
+  y += 20;
+
+  doc.setFontSize(13);
+  doc.text("Glucose Trend:", 20, y);
+
+  y += 10;
+
+  doc.addImage(chartImg, "PNG", 20, y, 160, 80);
+}
+
+// =========================
+// 📝 FOOTER
+// =========================
+y += 20;
+
+doc.setFontSize(10);
+doc.setTextColor(100);
+doc.text(
+  "Note: This is an AI-generated report. Consult a doctor for medical advice.",
+  20,
+  y
+);
+
+// =========================
+// 📥 DOWNLOAD
+// =========================
+doc.save(`patient_${id}_report.pdf`);
 
   } catch (err) {
     console.error(err);

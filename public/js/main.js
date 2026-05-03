@@ -444,11 +444,24 @@ const res = await fetch(
 
     doc.text(`Risk: ${resultText}`, 20, 90);
 
-    doc.text(
-      `Insulin: ${insulinData ? insulinData.units + " units" : "No data"}`,
-      20,
-      110
-    );
+   // 🧪 INSULIN SECTION
+let y = 110;
+
+doc.text("Insulin Records:", 20, y);
+
+if (Array.isArray(insulinData) && insulinData.length > 0) {
+  insulinData.forEach(i => {
+    y += 10;
+    doc.text(`• ${i.units} units at ${i.administered_at}`, 20, y);
+  });
+} else if (insulinData) {
+  // fallback if single object
+  y += 10;
+  doc.text(`• ${insulinData.units} units`, 20, y);
+} else {
+  y += 10;
+  doc.text("No insulin data", 20, y);
+}
 
     doc.text(
       `Avg Glucose: ${info.avg_glucose || "N/A"}`,

@@ -492,10 +492,20 @@ doc.text(`Gender: ${info.gender}`, 20, y); y += 10;
 
 doc.text(`Doctor: ${info.doctor_name || "N/A"}`, 110, 40);
 doc.text(`Specialization: ${info.specialization || "N/A"}`, 110, 50);
-
+doc.text(
+  `Appointment: ${
+    info.appointment_date
+      ? new Date(info.appointment_date).toLocaleDateString()
+      : "N/A"
+  }`,
+  110,
+  60
+);
 // =========================
 // 🔥 RISK (COLORED)
 // =========================
+doc.setFontSize(13);
+doc.text("Health Summary", 20, y ); 
 y += 20;
 
 doc.setFontSize(14);
@@ -516,6 +526,31 @@ if (finalRisk === "High") {
 }
 
 doc.text(`Risk Level: ${finalRisk}`, 20, y);
+y += 10;
+
+let status;
+
+if (info.avg_glucose > 200) {
+  status = "CRITICAL";
+} else if (info.avg_glucose > 140) {
+  status = "WARNING";
+} else {
+  status = "STABLE";
+}
+
+// color for status
+if (status === "CRITICAL") {
+  doc.setTextColor(255, 0, 0);
+} else if (status === "WARNING") {
+  doc.setTextColor(255, 140, 0);
+} else {
+  doc.setTextColor(0, 128, 0);
+}
+
+doc.text(`Health Status: ${status}`, 20, y);
+
+// reset color
+doc.setTextColor(0, 0, 0);
 // reset color
 doc.setTextColor(0, 0, 0);
 

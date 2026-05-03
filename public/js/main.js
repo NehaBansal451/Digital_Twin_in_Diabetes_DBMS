@@ -438,24 +438,31 @@ const res = await fetch(
 
     doc.setFontSize(12);
     doc.text(`Patient ID: ${info.patient_id}`, 20, 40);
-    doc.text(`Name: ${info.name}`, 20, 50);
-    doc.text(`Age: ${info.age}`, 20, 60);
-    doc.text(`Gender: ${info.gender}`, 20, 70);
+doc.text(`Name: ${info.name}`, 20, 50);
+doc.text(`Age: ${info.age}`, 20, 60);
+doc.text(`Gender: ${info.gender}`, 20, 70);
 
-    doc.text(`Risk: ${resultText}`, 20, 90);
+doc.text(`Doctor: ${info.doctor_name || "N/A"}`, 20, 80);
+doc.text(`Specialization: ${info.specialization || "N/A"}`, 20, 90);
+
+doc.text(`Risk: ${resultText}`, 20, 105);
 
    // 🧪 INSULIN SECTION
-let y = 110;
+// 🧪 INSULIN SECTION
+let y = 125;
 
 doc.text("Insulin Records:", 20, y);
 
 if (Array.isArray(insulinData) && insulinData.length > 0) {
-  insulinData.forEach(i => {
+  insulinData.slice(0, 5).forEach(i => {
     y += 10;
-    doc.text(`• ${i.units} units at ${i.administered_at}`, 20, y);
+    doc.text(
+      `• ${i.units} units at ${new Date(i.administered_at).toLocaleString()}`,
+      20,
+      y
+    );
   });
 } else if (insulinData) {
-  // fallback if single object
   y += 10;
   doc.text(`• ${insulinData.units} units`, 20, y);
 } else {
@@ -463,12 +470,8 @@ if (Array.isArray(insulinData) && insulinData.length > 0) {
   doc.text("No insulin data", 20, y);
 }
 
-    doc.text(
-      `Avg Glucose: ${info.avg_glucose || "N/A"}`,
-      20,
-      120
-    );
-
+y += 15;
+doc.text(`Avg Glucose: ${info.avg_glucose || "N/A"}`, 20, y);
     // =========================
     // ✅ DOWNLOAD
     // =========================

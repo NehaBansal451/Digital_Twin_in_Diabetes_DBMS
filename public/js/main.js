@@ -1,34 +1,4 @@
-function generateChart(glucoseData) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 400;
-  canvas.height = 200;
-
-  const ctx = canvas.getContext("2d");
-
-  const values = glucoseData.map(g => g.glucose_level);
-
-  // draw axes
-  ctx.beginPath();
-  ctx.moveTo(30, 10);
-  ctx.lineTo(30, 180);
-  ctx.lineTo(380, 180);
-  ctx.stroke();
-
-  // plot graph
-  ctx.beginPath();
-  values.forEach((val, i) => {
-    const x = 30 + i * (300 / values.length);
-    const y = 180 - val * 0.4; // scale
-
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-
-  ctx.strokeStyle = "blue";
-  ctx.stroke();
-
-  return canvas.toDataURL("image/png");
-}/* =========================
+/* =========================
    GLOBAL VARIABLES
 ========================= */
 let chart;
@@ -416,6 +386,38 @@ loadPatients();
 loadAlerts();
 showSection('patients');
 
+function generateChart(glucoseData) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 400;
+  canvas.height = 200;
+
+  const ctx = canvas.getContext("2d");
+
+  const values = glucoseData.map(g => g.glucose_level);
+
+  // draw axes
+  ctx.beginPath();
+  ctx.moveTo(30, 10);
+  ctx.lineTo(30, 180);
+  ctx.lineTo(380, 180);
+  ctx.stroke();
+
+  // plot graph
+  ctx.beginPath();
+  values.forEach((val, i) => {
+    const x = 30 + i * (300 / values.length);
+    const y = 180 - val * 0.4; // scale
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+
+  ctx.strokeStyle = "blue";
+  ctx.stroke();
+
+  return canvas.toDataURL("image/png");
+}
+
 async function downloadReport(){
   try {
     const { jsPDF } = window.jspdf;
@@ -483,30 +485,36 @@ doc.setFontSize(12);
 
 let y = 40;
 
-doc.text(`Patient ID: ${info.patient_id}`, 20, y);
-doc.text(`Name: ${info.name}`, 20, y + 10);
-doc.text(`Age: ${info.age}`, 20, y + 20);
-doc.text(`Gender: ${info.gender}`, 20, y + 30);
+doc.text(`Patient ID: ${info.patient_id}`, 20, y); y += 10;
+doc.text(`Name: ${info.name}`, 20, y); y += 10;
+doc.text(`Age: ${info.age}`, 20, y); y += 10;
+doc.text(`Gender: ${info.gender}`, 20, y); y += 10;
 
-doc.text(`Doctor: ${info.doctor_name || "N/A"}`, 110, y);
-doc.text(`Specialization: ${info.specialization || "N/A"}`, 110, y + 10);
+doc.text(`Doctor: ${info.doctor_name || "N/A"}`, 110, 40);
+doc.text(`Specialization: ${info.specialization || "N/A"}`, 110, 50);
 
 // =========================
 // 🔥 RISK (COLORED)
 // =========================
-y += 50;
+y += 20;
 
 doc.setFontSize(14);
 
-if (resultText.includes("High")) {
-  doc.setTextColor(255, 0, 0); // red
-} else if (resultText.includes("Medium")) {
-  doc.setTextColor(255, 140, 0); // orange
+let finalRisk;
+
+if (info.avg_glucose > 200) finalRisk = "High";
+else if (info.avg_glucose > 140) finalRisk = "Medium";
+else finalRisk = "Low";
+
+// color
+if (finalRisk === "High") {
+  doc.setTextColor(255, 0, 0);
+} else if (finalRisk === "Medium") {
+  doc.setTextColor(255, 140, 0);
 } else {
-  doc.setTextColor(0, 128, 0); // green
+  doc.setTextColor(0, 128, 0);
 }
 
-doc.text(`Risk Level: ${resultText}`, 20, y);
 
 // reset color
 doc.setTextColor(0, 0, 0);
@@ -522,14 +530,13 @@ doc.text("Insulin Records:", 20, y);
 doc.setFontSize(11);
 
 if (Array.isArray(insulinData) && insulinData.length > 0) {
-  insulinData.slice(0, 5).forEach(i => {
-    y += 10;
-    doc.text(
-      `• ${i.units} units (${new Date(i.administered_at).toLocaleDateString()})`,
-      25,
-      y
-    );
-  });
+insulinData.slice(0, 5).forEach(i => {
+  const text = `• ${i.units} units (${new Date(i.administered_at).toLocaleDateString()})`;
+
+  const lines = doc.splitTextToSize(text, 160);
+  doc.text(lines, 25, y);
+  y += lines.length * 7;
+});
 } else if (insulinData) {
   y += 10;
   doc.text(`• ${insulinData.units} units`, 25, y);
@@ -545,27 +552,42 @@ y += 20;
 
 doc.setFontSize(12);
 doc.text(`Average Glucose: ${info.avg_glucose || "N/A"}`, 20, y);
-// =========================
+const latest = info.glucose?.[0]?.glucose_level || "N/A";
+
+y += 10;
+doc.text(`Latest Glucose: ${latest}`, 20, y);// =========================
 // 📈 GLUCOSE GRAPH
 // =========================
 
 if (info.glucose && info.glucose.length > 0) {
+
+  if (y > 180) {
+    doc.addPage();
+    y = 20;
+  }
+
   const chartImg = generateChart(info.glucose);
 
-  y += 20;
-
+  y += 10;
   doc.setFontSize(13);
   doc.text("Glucose Trend:", 20, y);
 
   y += 10;
 
   doc.addImage(chartImg, "PNG", 20, y, 160, 80);
+
+y += 10;  
 }
 
 // =========================
 // 📝 FOOTER
 // =========================
-y += 20;
+if (y > 260) {
+  doc.addPage();
+  y = 20;
+}
+
+y += 10;
 
 doc.setFontSize(10);
 doc.setTextColor(100);
